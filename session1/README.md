@@ -21,3 +21,8 @@
 - `sudo apt update`: Aktualisiert den lokalen Paketindex, um die neuesten Änderungen in den Repositories widerzuspiegeln. (Muss am Server ausgeführt werden)
 
 - `sudo apt dist-upgrade`: Aktualisiert die installierten Pakete, behandelt Abhängigkeiten intelligent und kann je nach Bedarf zusätzliche Pakete entfernen oder installieren. (Muss am Server ausgeführt werden)
+
+## Dokumentationen
+
+- [Ansible apt Modul Dokumentation](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html)
+- [Ansible Konfiguration Dokumentation](https://docs.ansible.com/ansible/latest/reference_appendices/config.html)

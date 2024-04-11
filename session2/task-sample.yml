@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: "main task check"
+    debug:
+      msg: "I am a main task"
+
+  post_tasks:
+  - name: "post task check"
+    debug:
+      msg: "I am a post task"
+
+  pre_tasks:
+  - name: "pre task check"
+    debug:
+      msg: "I am a pre task"

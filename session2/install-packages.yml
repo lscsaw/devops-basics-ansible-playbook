@@ -1,0 +1,37 @@
+---
+
+# ansible all -m ping 
+
+- hosts: all
+  become: yes
+  tasks:
+
+  # - name: "Ping all my hosts"
+  #   ping:
+
+  # - name: "Update all apt packages"
+  #   apt:
+  #     update_cache: yes
+   
+  # - name: "Install apache webserver"
+  #   apt:
+  #     name: apache2
+  #     state: latest
+
+  # - name: "Install docker"
+  #   apt:
+  #     name: docker.io
+  #     state: latest
+
+
+  - name: "Install base packages"    
+    apt:
+      name:
+        - apache2
+        - docker.io
+        - git
+        - sudo
+        - tmux
+        - nginx
+      state: latest
+      update_cache: yes

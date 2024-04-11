@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: "remove packages"
+    apt:
+      name:
+        - tmux
+        - vim
+      state: absent  

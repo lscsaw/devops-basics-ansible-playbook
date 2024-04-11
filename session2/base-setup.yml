@@ -1,0 +1,72 @@
+---
+
+- hosts: 192.168.64.4
+  become: yes
+  tasks:
+
+  - name: "list all files"
+    tags: debug
+    debug:
+      msg: "I am a main task"
+
+- hosts: all
+  become: yes
+  tasks:
+
+  - name: "Update & install apt packages"
+    tags: apt,package
+    apt:
+      # upgrade: dist
+      update_cache: yes
+
+
+- hosts: webserver
+  tags: webserver  
+  become: yes
+  tasks:
+  - name: "Install apache webserver"
+    tags: apache,apache2
+    apt:
+      name: apache2
+      state: latest
+
+  - name: copy default html page for apache2
+    tags: apache,apache2,cp
+    copy:
+      src: ./files/default_apache_index.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: "Install docker"
+    tags: docker
+    apt:
+      name: docker.io
+      state: latest
+
+  post_tasks:
+  - name: "Restart apache2"
+    tags: apache,apache2,restart
+    service:
+      name: apache2
+      state: restarted
+
+- hosts: db_server
+  tags: db_server
+  become: yes
+  tasks:
+
+  - name: "Install mariaDB"
+    tags: mariaDB
+    apt:
+      name: mariadb-server
+      state: latest
+
+  - name: "Install docker"
+    tags: docker
+    apt:
+      name: docker.io
+      state: latest    
+
+
