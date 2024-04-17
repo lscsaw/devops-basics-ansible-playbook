@@ -8,13 +8,17 @@
 
   tasks:
     # - Aktualisieren aller Pakete.
-    - name: "packages updates"
-      apt:
-        update_cache: yes
-        upgrade: dist
+    # - name: "packages updates"
+    #   apt:
+    #     update_cache: yes
+    #     upgrade: dist
+
+    - name: set hostname
+      hostname:
+        name: "{{ hostname }}"
 
     # - (google help needed) Installieren und Konfigurieren von Zsh mit Oh-My-Zsh für ein verbessertes Terminal-Erlebnis.
-    - name: "zsh installation"
+    - name: zsh installation
       package:
         name: zsh
         state: present
@@ -29,8 +33,13 @@
       register: oh_my_zsh_result
       failed_when: "'Failed: ' in oh_my_zsh_result.stderr"
 
+    - name: create a default .zshrc file
+      copy:
+        src: zshrc_default_config
+        dest: /home/{{ user }}/.zshrc
+
     # - Hinzufügen eines neuen Benutzers `ansible` und Eintragen in die Gruppe `sudo`.
-    - name: "add ansible user"
+    - name: add ansible user
       user:
         name: "{{ user }}"
         group: sudo
@@ -38,23 +47,23 @@
         create_home: yes
 
     # - Hinzufügen von SSH-Schlüsseln aus einer Datei für den `ansible` user.
-    - name: "add ssh keys"
-      autuhorized_key:
+    - name: add ssh keys
+      authorized_key:
         user: "{{ user }}"
         key: "{{ item }}"
         exclusive: yes
       with_file:
-        - autuhorized_keys
+        - authorized_keys
 
     # - Konfiguriere den Benutzer so, dass er ohne Passwort sudo-Rechte hat.
-    - name: "configure sudoers"
+    - name: configure sudoers
       template:
         src: sudoers_ansible.j2
         dest: /etc/sudoers.d/ansible
 
     # - Deaktivieren der Passwort-Authentifizierung für SSH.
     # - (google help needed) Ändern des SSH-Ports auf 1234.
-    - name: "update ssh config"
+    - name: update ssh config
       template:
         src: sshd_config.j2
         dest: /etc/ssh/sshd_config

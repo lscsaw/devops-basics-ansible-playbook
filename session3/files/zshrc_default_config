@@ -2,5 +2,6 @@
 # Note: This config is generated and added by ansible. Do not edit it manually.
 # ############################################################################################################
 #
-
-ansible ALL=(ALL:ALL) NOPASSWD:ALL
+          
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+export ZSH_THEME="robbyrussell"
