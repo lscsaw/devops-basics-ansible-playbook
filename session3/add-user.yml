@@ -1,0 +1,61 @@
+---
+- name: setup and configure user
+  hosts: all
+  become: true
+  vars:
+    group: root
+    user: ansible
+    sshd_port: 22
+
+  tasks:
+    - name: add group {{ group }}
+      group:
+        name: "{{ group }}"
+        state: present
+
+    - name: add user ansible
+      user:
+        name: "{{ user }}"
+        group: "{{ group }}"
+        password: "$6$rounds=656000$mysecretsalt$Y1hrSYLgzJEJSwagLhNaYvvxXcNwTTgNb4SDh/z1xFpXh1MDXUaIU1mSk/sdkAmxDsE9hxWfW94KebhEDSDro0"
+        create_home: yes
+        shell: /bin/bash
+
+    - name: add authorized key
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3Jk8dbs6wLcTsq1dwmK6YOom+TmCV3jmijWL9FoUyX lukas.stattmann@csaw.at"
+
+    - name: add authorized keys from file
+      tags: authorized_keys
+      authorized_key:
+        user: "{{ user }}"
+        state: present
+        key: "{{ item }}"
+        # Gibt an, ob ein key entfernt werden soll, wenn er nicht in der Datei vorhanden ist.
+        exclusive: yes
+      with_file:
+        - authorized_keys
+
+    - name: disable sudo password for sudo -i
+      tags: sudoers
+      lineinfile:
+        path: /etc/sudoers
+        line: "%{{ user }} ALL=(ALL:ALL) NOPASSWD:ALL"
+
+    - name: add custom SSH configuration
+      tags: sshd
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: "0644"
+      notify: restart sshd
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: ssh
+        state: restarted

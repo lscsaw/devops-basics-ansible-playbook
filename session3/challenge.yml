@@ -1,0 +1,67 @@
+---
+- name: server setup
+  hosts: all
+  become: true
+  vars:
+    user: ansible
+    ssh_port: 1234
+
+  tasks:
+    # - Aktualisieren aller Pakete.
+    - name: "packages updates"
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    # - (google help needed) Installieren und Konfigurieren von Zsh mit Oh-My-Zsh für ein verbessertes Terminal-Erlebnis.
+    - name: "zsh installation"
+      package:
+        name: zsh
+        state: present
+
+    - name: "download oh-my-zsh installation script"
+      get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/install-oh-my-zsh.sh
+
+    - name: "run oh-my-zsh installation script"
+      command: "sh /tmp/install-oh-my-zsh.sh --unattended"
+      register: oh_my_zsh_result
+      failed_when: "'Failed: ' in oh_my_zsh_result.stderr"
+
+    # - Hinzufügen eines neuen Benutzers `ansible` und Eintragen in die Gruppe `sudo`.
+    - name: "add ansible user"
+      user:
+        name: "{{ user }}"
+        group: sudo
+        shell: /bin/zsh
+        create_home: yes
+
+    # - Hinzufügen von SSH-Schlüsseln aus einer Datei für den `ansible` user.
+    - name: "add ssh keys"
+      autuhorized_key:
+        user: "{{ user }}"
+        key: "{{ item }}"
+        exclusive: yes
+      with_file:
+        - autuhorized_keys
+
+    # - Konfiguriere den Benutzer so, dass er ohne Passwort sudo-Rechte hat.
+    - name: "configure sudoers"
+      template:
+        src: sudoers_ansible.j2
+        dest: /etc/sudoers.d/ansible
+
+    # - Deaktivieren der Passwort-Authentifizierung für SSH.
+    # - (google help needed) Ändern des SSH-Ports auf 1234.
+    - name: "update ssh config"
+      template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+      notify: restart sshd service
+
+  handlers:
+    - name: restart sshd service
+      service:
+        name: sshd
+        state: restarted
