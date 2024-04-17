@@ -1,0 +1,7 @@
+# ############################################################################################################
+# Note: This config is generated and added by ansible. Do not edit it manually.
+# ############################################################################################################
+#
+          
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+export ZSH_THEME="robbyrussell"

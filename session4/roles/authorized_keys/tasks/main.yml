@@ -1,0 +1,8 @@
+# - Hinzufügen von SSH-Schlüsseln aus einer Datei für den `ansible` user.
+- name: add ssh keys
+  authorized_key:
+    user: "{{ user }}"
+    key: "{{ item }}"
+    exclusive: yes
+  with_file:
+    - authorized_keys

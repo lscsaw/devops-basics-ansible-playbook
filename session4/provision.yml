@@ -46,15 +46,6 @@
         src: zshrc_default_config
         dest: /home/{{ user }}/.zshrc
 
-    # - Hinzufügen von SSH-Schlüsseln aus einer Datei für den `ansible` user.
-    - name: add ssh keys
-      authorized_key:
-        user: "{{ user }}"
-        key: "{{ item }}"
-        exclusive: yes
-      with_file:
-        - authorized_keys
-
     # - Konfiguriere den Benutzer so, dass er ohne Passwort sudo-Rechte hat.
     - name: configure sudoers
       template:
@@ -68,6 +59,9 @@
         src: sshd_config.j2
         dest: /etc/ssh/sshd_config
       notify: restart sshd service
+
+  roles:
+    - authorized_keys
 
   handlers:
     - name: restart sshd service
